@@ -44,12 +44,12 @@ impl<A: Authenticator> LoginStatus<A> {
         let cookie_identifier = config::get_cookie_identifier();
 
         cookies.add_private(Cookie::new(cookie_identifier, self.get_authenticator().user().to_string()));
-        Redirect::to(url.into().as_str())
+        Redirect::to(url.into())
     }
 
     /// Generates a failed response
     fn failed<T: Into<String>>(self, url: T) -> Redirect {
-        Redirect::to(url.into().as_str())
+        Redirect::to(url.into())
     }
 
     /// Generate an appropriate response based on the login status that the authenticator returned
@@ -69,10 +69,10 @@ impl<'f,A: Authenticator> FromForm<'f> for LoginStatus<A>{
     fn from_form(form_items: &mut FormItems<'f>, _strict: bool) -> Result<Self, Self::Error> {
         let mut user_pass = HashMap::new();
 
-        for (key,value) in form_items{
-            match key.as_str(){
-                "username" => user_pass.insert("username", value.url_decode().unwrap()).map_or((), |_v| ()),
-                "password" => user_pass.insert("password", value.url_decode().unwrap()).map_or((), |_v| ()),
+        for item in form_items{
+            match item.key.as_str() {
+                "username" => user_pass.insert("username", item.value.url_decode().unwrap()).map_or((), |_v| ()),
+                "password" => user_pass.insert("password", item.value.url_decode().unwrap()).map_or((), |_v| ()),
                 _ => ()
             }
         }
